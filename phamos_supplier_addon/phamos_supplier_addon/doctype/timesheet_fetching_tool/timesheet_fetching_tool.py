@@ -23,28 +23,7 @@ class TimesheetFetchingTool(Document):
 			timesheet_data = response.json().get("data")
 
 			phamos_project = timesheet_data.get("project")
-			project_id = frappe.db.exists("Project", {"custom_phamos_project": phamos_project})
-			# frappe.msgprint(cstr(project_id))
-			if not project_id:
-				url = f"{self.url}/api/resource/Project/{phamos_project}"
-				response = requests.request("GET", url, headers=self.cookie_headers)
-				project_data = response.json().get("data")
-				# frappe.msgprint(cstr(response.text))
-
-				new_project = frappe.new_doc("Project")
-				new_project.update(project_data)
-				new_project.custom_phamos_project = phamos_project
-				new_project.name = ""
-				new_project.cost_center = ""
-				new_project.department = ""
-				new_project.sales_order = ""
-				new_project.customer = ""
-				new_project.company = company
-
-				# frappe.msgprint(cstr(new_project))
-
-				new_project.insert()
-				project_id = new_project.name
+			project_id = get_project_id(phamos_project, company, self)
 
 			if not frappe.db.exists("Timesheet", {"custom_phamos_timesheet": phamos_timesheet, "custom_phamos_timesheet_record": phamos_timesheet_record}):
 				# frappe.msgprint(cstr(project_id))
@@ -99,3 +78,30 @@ class TimesheetFetchingTool(Document):
 		self.timesheet_timesheet_records_dict = {}
 		for item in self.timesheet_records:
 			self.timesheet_timesheet_records_dict[item['timesheet']] = item['name']
+
+
+def get_project_id(phamos_project, company, timesheet_fetching_tool_doc):
+	project_id = frappe.db.exists("Project", {"custom_phamos_project": phamos_project})
+	# frappe.msgprint(cstr(project_id))
+	if not project_id:
+		url = f"{timesheet_fetching_tool_doc.url}/api/resource/Project/{phamos_project}"
+		response = requests.request("GET", url, headers=timesheet_fetching_tool_doc.cookie_headers)
+		project_data = response.json().get("data")
+		# frappe.msgprint(cstr(response.text))
+
+		new_project = frappe.new_doc("Project")
+		new_project.update(project_data)
+		new_project.custom_phamos_project = phamos_project
+		new_project.name = ""
+		new_project.cost_center = ""
+		new_project.department = ""
+		new_project.sales_order = ""
+		new_project.customer = ""
+		new_project.company = company
+
+		# frappe.msgprint(cstr(new_project))
+
+		new_project.insert()
+		project_id = new_project.name
+	
+	return project_id
