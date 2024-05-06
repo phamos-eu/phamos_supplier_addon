@@ -7,6 +7,7 @@ app_description = "Phamos Supplier Addon"
 app_email = "furqan.asghar@phamos.eu"
 app_license = "MIT"
 
+required_apps = ["erpnext"]
 # Includes in <head>
 # ------------------
 
