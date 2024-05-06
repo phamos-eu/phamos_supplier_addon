@@ -33,6 +33,7 @@ class TimesheetFetchingTool(Document):
 				new_timesheet.custom_phamos_timesheet = phamos_timesheet
 				new_timesheet.company = company
 				new_timesheet.custom_phamos_project = phamos_project
+				new_timesheet.custom_phamos_project_id = project_id
 				new_timesheet.customer = ""
 				new_timesheet.parent_project = ""
 				new_timesheet.name = ""
@@ -40,7 +41,10 @@ class TimesheetFetchingTool(Document):
 				new_timesheet.docstatus = 0
 				new_timesheet.status = "Draft"
 				for log in new_timesheet.time_logs:
-					log.project = project_id
+					log.custom_phamos_timesheet_record = phamos_timesheet_record
+					log.custom_phamos_timesheet = phamos_timesheet
+					log.custom_phamos_project = phamos_project
+					log.project = get_project_id(log.project, company, self)
 					log.task = ""
 					log.activity_type = ""
 					log.sales_invoice = ""
