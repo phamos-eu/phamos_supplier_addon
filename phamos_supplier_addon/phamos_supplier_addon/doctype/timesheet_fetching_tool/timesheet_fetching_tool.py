@@ -26,7 +26,6 @@ class TimesheetFetchingTool(Document):
 			project_id = get_project_id(phamos_project, company, self)
 
 			if not frappe.db.exists("Timesheet", {"custom_phamos_timesheet": phamos_timesheet, "custom_phamos_timesheet_record": phamos_timesheet_record}):
-				# frappe.msgprint(cstr(project_id))
 				new_timesheet = frappe.new_doc("Timesheet")
 				new_timesheet.update(timesheet_data)
 				new_timesheet.custom_phamos_timesheet_record = phamos_timesheet_record
@@ -49,9 +48,7 @@ class TimesheetFetchingTool(Document):
 					log.activity_type = ""
 					log.sales_invoice = ""
 				
-				# frappe.msgprint(cstr(new_timesheet.as_dict()))
 				new_timesheet.insert()
-
 
 	def authenticate(self):
 		url = f"{self.url}/api/method/login"
@@ -74,7 +71,6 @@ class TimesheetFetchingTool(Document):
 		filters = json.dumps([["owner","=",self.usr], ["creation","Between",[from_date, to_date]],["docstatus","=","1"]])
 		url = f"{self.url}/api/resource/Timesheet Record?fields={fields}&filters={filters}&limit_page_length=1000&order_by=creation"
 		response = requests.request("GET", url, headers=self.cookie_headers)
-		# frappe.msgprint(cstr(response.text))
 		data = response.json().get("data")
 		self.timesheet_records_count = len(data)
 		self.timesheet_records = data
@@ -86,12 +82,10 @@ class TimesheetFetchingTool(Document):
 
 def get_project_id(phamos_project, company, timesheet_fetching_tool_doc):
 	project_id = frappe.db.exists("Project", {"custom_phamos_project": phamos_project})
-	# frappe.msgprint(cstr(project_id))
 	if not project_id:
 		url = f"{timesheet_fetching_tool_doc.url}/api/resource/Project/{phamos_project}"
 		response = requests.request("GET", url, headers=timesheet_fetching_tool_doc.cookie_headers)
 		project_data = response.json().get("data")
-		# frappe.msgprint(cstr(response.text))
 
 		new_project = frappe.new_doc("Project")
 		new_project.update(project_data)
@@ -102,9 +96,6 @@ def get_project_id(phamos_project, company, timesheet_fetching_tool_doc):
 		new_project.sales_order = ""
 		new_project.customer = ""
 		new_project.company = company
-
-		# frappe.msgprint(cstr(new_project))
-
 		new_project.insert()
 		project_id = new_project.name
 	
