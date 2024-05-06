@@ -1,0 +1,64 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-04-10 07:47:17.856718",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "url",
+  "column_break_pocej",
+  "usr",
+  "column_break_stuh",
+  "pwd"
+ ],
+ "fields": [
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL"
+  },
+  {
+   "fieldname": "column_break_pocej",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "usr",
+   "fieldtype": "Data",
+   "label": "usr"
+  },
+  {
+   "fieldname": "pwd",
+   "fieldtype": "Password",
+   "label": "pwd"
+  },
+  {
+   "fieldname": "column_break_stuh",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-05-05 19:23:43.312954",
+ "modified_by": "Administrator",
+ "module": "Phamos Supplier Addon",
+ "name": "Timesheet Fetching Tool",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
