@@ -139,11 +139,11 @@ frappe.ui.form.on('Sales Invoice', {
 			});
 			frm.trigger("calculate_timesheet_totals");
 			frm.refresh();
-			frm.events.projectwise_costing_breakdown(frm, kwargs);
+			frm.events.projectwise_costing_distribution(frm, kwargs);
 		});
 	},
 
-	projectwise_costing_breakdown: function(frm, kwargs){
+	projectwise_costing_distribution: function(frm, kwargs){
 		if (!frm.doc.timesheets.length > 0) {
 			frappe.throw("Timesheet data is missing!");
 		}
