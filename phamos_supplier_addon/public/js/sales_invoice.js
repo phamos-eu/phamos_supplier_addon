@@ -100,64 +100,7 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			],
 			(values) => {
-
-				frm.events.add_phamos_timesheet_data(frm, {
-					from_time: values.from_time,
-					to_time: values.to_time,
-					project: values.project,
-				});
-
-
-				if (!frm.doc.timesheets.length > 0) {
-					frappe.throw("Please fill data in Timesheet table");
-				}
-				
-				let billingHoursByProject = {};
-				let distributedAmountByProject = {};
-				let service_item = values.service_item;
-				let timesheets = frm.doc.timesheets;
-				let amt_to_distribute = values.amt_to_distribute;
-				let totalBillingHours = timesheets.reduce((total, timesheet) => total + timesheet.billing_hours, 0);
-
-				timesheets.forEach(timesheet => {
-					let projectId = timesheet.custom_project_id;
-					if (!billingHoursByProject[projectId]) {
-						billingHoursByProject[projectId] = 0;
-					}
-					billingHoursByProject[projectId] += timesheet.billing_hours;
-				});
-				
-				// Distribute amount to each project based on their billing hours
-				Object.keys(billingHoursByProject).forEach(projectId => {
-					let projectBillingHours = billingHoursByProject[projectId];
-					let projectRatio = projectBillingHours / totalBillingHours;
-					let projectAmount = amt_to_distribute * projectRatio;
-					distributedAmountByProject[projectId] = projectAmount;
-				});
-
-				let rows = Object.keys(distributedAmountByProject).map(key => {
-					return {
-						project: key,
-						amount: distributedAmountByProject[key]
-					};
-				});
-
-				frm.clear_table("items");
-				rows.forEach(row => {
-					if (row.project && row.amount) {
-						const item_row = frm.add_child("items");
-						item_row.item_code = service_item;
-						item_row.item_name = service_item + " " + row.project;
-						item_row.description = service_item + " " + row.project;
-						item_row.project = row.project;
-						item_row.rate = row.amount;
-						item_row.income_account = values.income_account
-						item_row.qty = 1
-						item_row.uom = "Nos"
-					}
-				});
-		
-				frm.refresh_field("items");
+				frm.events.fetchtimesheet_and_distribute(frm, values);
 			},
 			__("Fetch and distribute Timesheet"),
 			__("Distribute")
@@ -166,54 +109,95 @@ frappe.ui.form.on('Sales Invoice', {
 		__("Fetch Timesheet"));
     },
 
-	async add_phamos_timesheet_data(frm, kwargs) {
-		if (kwargs === "Sales Invoice") {
-			// called via frm.trigger()
-			kwargs = Object();
-		}
+	fetchtimesheet_and_distribute: function (frm, kwargs) {
+		debugger;
 
-		if (!Object.prototype.hasOwnProperty.call(kwargs, "project") && frm.doc.project) {
-			kwargs.project = frm.doc.project;
-		}
+		frappe.call({
+			method: "phamos_supplier_addon.overrides.timesheet.get_projectwise_timesheet_data",
+			args: kwargs
+		})
+		.then((r) => {
+			let timesheets = [];
+			if (!r.exc && r.message.length > 0) {
+				timesheets = r.message;
+			} else {
+				timesheets = [];
+			}
 
-		const timesheets = await frm.events.get_phamos_timesheet_data(frm, kwargs);
-		return frm.events.set_phamos_timesheet_data(frm, timesheets);
-	},
-
-	async get_phamos_timesheet_data(frm, kwargs) {
-		return frappe
-			.call({
-				method: "phamos_supplier_addon.overrides.timesheet.get_projectwise_timesheet_data",
-				args: kwargs,
-			})
-			.then((r) => {
-				if (!r.exc && r.message.length > 0) {
-					return r.message;
+			frm.clear_table("timesheets");
+			timesheets.forEach(async (timesheet) => {
+				if (frm.doc.currency != timesheet.currency) {
+					const exchange_rate = await frm.events.get_exchange_rate(
+						frm,
+						timesheet.currency,
+						frm.doc.currency
+					);
+					frm.events.custom_append_time_log(frm, timesheet, exchange_rate);
 				} else {
-					return [];
+					frm.events.custom_append_time_log(frm, timesheet, 1.0);
 				}
 			});
+			frm.trigger("calculate_timesheet_totals");
+			frm.refresh();
+			frm.events.projectwise_costing_breakdown(frm, kwargs);
+		});
 	},
 
-	set_phamos_timesheet_data: function (frm, timesheets) {
-		frm.clear_table("timesheets");
-		timesheets.forEach(async (timesheet) => {
-			if (frm.doc.currency != timesheet.currency) {
-				// const exchange_rate = await frm.events.get_exchange_rate(
-				// 	frm,
-				// 	timesheet.currency,
-				// 	frm.doc.currency
-				// );
-				frm.events.append_time_log_1(frm, timesheet, exchange_rate);
-			} else {
-				frm.events.append_time_log_1(frm, timesheet, 1.0);
+	projectwise_costing_breakdown: function(frm, kwargs){
+		if (!frm.doc.timesheets.length > 0) {
+			frappe.throw("Timesheet data is missing!");
+		}
+		
+		let billingHoursByProject = {};
+		let distributedAmountByProject = {};
+		let service_item = kwargs.service_item;
+		let timesheets = frm.doc.timesheets;
+		let amt_to_distribute = kwargs.amt_to_distribute;
+		let totalBillingHours = timesheets.reduce((total, timesheet) => total + timesheet.billing_hours, 0);
+
+		timesheets.forEach(timesheet => {
+			let projectId = timesheet.custom_project_id;
+			if (!billingHoursByProject[projectId]) {
+				billingHoursByProject[projectId] = 0;
+			}
+			billingHoursByProject[projectId] += timesheet.billing_hours;
+		});
+		
+		// Distribute amount to each project based on their billing hours
+		Object.keys(billingHoursByProject).forEach(projectId => {
+			let projectBillingHours = billingHoursByProject[projectId];
+			let projectRatio = projectBillingHours / totalBillingHours;
+			let projectAmount = amt_to_distribute * projectRatio;
+			distributedAmountByProject[projectId] = projectAmount;
+		});
+
+		let rows = Object.keys(distributedAmountByProject).map(key => {
+			return {
+				project: key,
+				amount: distributedAmountByProject[key],
+				billable_hours: billingHoursByProject[key]
+			};
+		});
+
+		frm.clear_table("items");
+		rows.forEach(row => {
+			if (row.project && row.amount) {
+				const item_row = frm.add_child("items");
+				item_row.item_code = service_item;
+				item_row.item_name = service_item + " " + row.project;
+				item_row.description = service_item + " " + row.project;
+				item_row.custom_billable_hours = row.billable_hours
+				item_row.project = row.project;
+				item_row.rate = row.amount;
+				item_row.income_account = kwargs.income_account
+				item_row.qty = 1
+				item_row.uom = "Nos"
 			}
 		});
-		frm.trigger("calculate_timesheet_totals");
-		frm.refresh();
+		frm.refresh_field("items");
 	},
 
-	append_time_log_1: function (frm, time_log, exchange_rate) {
+	custom_append_time_log: function (frm, time_log, exchange_rate) {
 		const row = frm.add_child("timesheets");
 		row.activity_type = time_log.activity_type;
 		row.description = time_log.description;
@@ -227,5 +211,4 @@ frappe.ui.form.on('Sales Invoice', {
 		row.custom_phamos_project = time_log.custom_phamos_project;
 		row.project_name = time_log.project_name;
 	},
-
 })
