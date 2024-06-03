@@ -83,6 +83,7 @@ frappe.ui.form.on('Sales Invoice', {
 								item_row.item_name = service_item + " " + row.project;
 								item_row.description = service_item + " " + row.project;
 								item_row.custom_phamos_project = row.project;
+								item_row.custom_phamos_project_name = row.project_name;
 								item_row.income_account = income_account;
 								item_row.rate = row.project_bill;
 								item_row.custom_billable_hours = row.hours;

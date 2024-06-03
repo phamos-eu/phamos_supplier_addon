@@ -12,7 +12,9 @@
   "column_break_pocej",
   "usr",
   "column_break_stuh",
-  "pwd"
+  "pwd",
+  "section_break_qamm",
+  "projects_name"
  ],
  "fields": [
   {
@@ -51,12 +53,23 @@
    "is_virtual": 1,
    "label": "Enable",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_qamm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "projects_name",
+   "fieldtype": "Code",
+   "label": "Projects Name",
+   "options": "{}",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-31 21:47:57.254351",
+ "modified": "2024-06-03 13:20:04.324416",
  "modified_by": "Administrator",
  "module": "Phamos Supplier Addon",
  "name": "Remote Server Connector",

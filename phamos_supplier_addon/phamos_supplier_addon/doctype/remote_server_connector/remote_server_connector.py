@@ -58,5 +58,17 @@ class RemoteServerConnector(Document):
 		}
 
 		response = requests.request("POST", url, headers=self.cookie_headers, data=data)
-		response_json = response.json().get("message").get("values")
-		return response_json
+		if response.ok and response.status_code == 200:
+			response_json = response.json().get("message").get("values") or []
+			return response_json
+		else:
+			frappe.throw(_("Something went wrong"))
+
+	def fetch_project(self, project):
+		url = f"{self.url}/api/resource/Project/{project}"
+		response = requests.request("GET", url, headers=self.cookie_headers)
+		if response.ok and response.status_code == 200:
+			response_json = response.json().get("data") or {}
+			return response_json
+		else:
+			frappe.throw(_("Something went wrong"))
