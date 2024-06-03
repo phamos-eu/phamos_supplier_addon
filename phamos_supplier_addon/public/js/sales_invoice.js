@@ -14,7 +14,7 @@ frappe.ui.form.on('Sales Invoice', {
 					label: __("From"),
 					fieldname: "from_date",
 					fieldtype: "Date",
-					default: "2024-05-01",
+					default: frappe.datetime.month_start(),
 					reqd: 1,
 				},
 				{
@@ -25,7 +25,7 @@ frappe.ui.form.on('Sales Invoice', {
 					label: __("To"),
 					fieldname: "to_date",
 					fieldtype: "Date",
-					default: "2024-05-31",
+					default: frappe.datetime.month_end(),
 					reqd: 1,
 				},
 				{
@@ -56,28 +56,25 @@ frappe.ui.form.on('Sales Invoice', {
 					label: __("Amount to Distribute"),
 					fieldname: "amt_to_distribute",
 					fieldtype: "Currency",
-					default: 1000.00,
 					reqd: 1,
 				}
 			],
 			(values) => {
 				frappe.call({
 					method: "phamos_supplier_addon.overrides.sales_invoice.fetch_and_process_work_summary",
-					doc: self.doc,
 					args: {
 						"from_date": values.from_date,
 						"to_date": values.to_date,
 						"amount": values.amt_to_distribute
 					},
+					freeze: true,
 					callback: function (r) {
 						let service_item = values.service_item;
 						let income_account = values.income_account
 						if (r.message) {
 							let work_summary = r.message.work_summary;
-							let hourly_rate = r.message.hourly_rate;
 							frm.clear_table("items");
 							work_summary.forEach(row => {
-								console.log(row)
 								const item_row = frm.add_child("items");
 								item_row.item_code = service_item;
 								item_row.item_name = service_item + " " + row.project;
@@ -92,6 +89,7 @@ frappe.ui.form.on('Sales Invoice', {
 								item_row.uom = "Hour";
 							});
 							frm.refresh_field("items");
+							frappe.msgprint(__("Fetch and populated Data successfully"))
 						}
 					},
 				})
