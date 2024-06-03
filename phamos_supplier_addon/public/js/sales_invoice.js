@@ -60,6 +60,10 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			],
 			(values) => {
+				let amount = values.amt_to_distribute;
+				if (amount < 1) {
+					frappe.throw(__("Please set amount greate then 0"))
+				}
 				frappe.call({
 					method: "phamos_supplier_addon.overrides.sales_invoice.fetch_and_process_work_summary",
 					args: {
@@ -71,7 +75,7 @@ frappe.ui.form.on('Sales Invoice', {
 					callback: function (r) {
 						let service_item = values.service_item;
 						let income_account = values.income_account
-						if (r.message) {
+						if (r.message.work_summary.length > 1) {
 							let work_summary = r.message.work_summary;
 							frm.clear_table("items");
 							work_summary.forEach(row => {
@@ -89,13 +93,14 @@ frappe.ui.form.on('Sales Invoice', {
 								item_row.uom = "Hour";
 							});
 							frm.refresh_field("items");
-							frappe.msgprint(__("Fetch and populated Data successfully"))
+						} else {
+							frappe.throw(__("No Data Found!"))
 						}
 					},
 				})
 			},
 			__("Fetch and process work summary"),
-			__("Distribute")
+			__("Fetch and process")
 			);
 			},
 			__("Get Items From")

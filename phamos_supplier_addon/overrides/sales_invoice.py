@@ -22,7 +22,7 @@ def fetch_and_process_work_summary(from_date, to_date, amount):
             } for project, hours in work_summary if hours > 0 ]
         
         frappe.db.set_single_value("Remote Server Connector", "projects_name", json.dumps(projects_name), update_modified=False)
-        return {"work_summary": work_summary, "hourly_rate": hourly_rate}
+    return {"work_summary": work_summary}
 
 
 def get_project_name(project, projects_name, RSC):

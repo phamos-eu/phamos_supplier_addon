@@ -29,7 +29,6 @@ class RemoteServerConnector(Document):
 
 		response = requests.request("POST", url, json=payload, headers=headers)
 		if response.ok and response.status_code == 200:
-			frappe.msgprint(_("Successfully Authenticated"))
 			cookies = response.cookies.get_dict()
 			self.cookies = "; ".join([f"{key}={value}" for key, value in cookies.items()])
 			self.cookie_headers = {"cookie": self.cookies}
@@ -59,8 +58,15 @@ class RemoteServerConnector(Document):
 
 		response = requests.request("POST", url, headers=self.cookie_headers, data=data)
 		if response.ok and response.status_code == 200:
-			response_json = response.json().get("message").get("values") or []
-			return response_json
+			message = response.json().get("message")
+			if isinstance(message, dict):
+				work_summary = message.get("values")
+			elif isinstance(message, list):
+				work_summary = message
+			else:
+				work_summary = []
+
+			return work_summary
 		else:
 			frappe.throw(_("Something went wrong"))
 
