@@ -37,7 +37,7 @@ class RemoteServerConnector(Document):
 		else:
 			frappe.throw(_("Authentication Failed"))
 
-	def fetch_timesheet_summary(self, from_date, to_date):
+	def fetch_work_summary(self, from_date, to_date):
 		url = f"{self.url}/api/method/frappe.desk.reportview.get"
 
 		filters = json.dumps([["Timesheet","owner","=",self.usr],["Timesheet","creation","Between",[from_date,to_date]]])
