@@ -11,10 +11,8 @@ from frappe.model.document import Document
 class RemoteServerConnector(Document):
 	def __init__(self, *args, **kwargs):
 		super(RemoteServerConnector, self).__init__(*args, **kwargs)
-		self.enable = 0
 		if self.url and self.usr and self.pwd:
 			self.authenticate()
-			self.enable = 1
 
 	def authenticate(self):
 		url = f"{self.url}/api/method/login"
