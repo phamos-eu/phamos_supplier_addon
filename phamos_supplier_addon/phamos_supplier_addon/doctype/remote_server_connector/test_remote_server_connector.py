@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestTimesheetFetchingTool(FrappeTestCase):
+class TestRemoteServerConnector(FrappeTestCase):
 	pass

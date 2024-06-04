@@ -8,16 +8,21 @@
  "engine": "InnoDB",
  "field_order": [
   "url",
+  "enable",
   "column_break_pocej",
   "usr",
   "column_break_stuh",
-  "pwd"
+  "pwd",
+  "section_break_qamm",
+  "projects_name"
  ],
  "fields": [
   {
    "fieldname": "url",
    "fieldtype": "Data",
-   "label": "URL"
+   "in_list_view": 1,
+   "label": "URL",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_pocej",
@@ -26,25 +31,48 @@
   {
    "fieldname": "usr",
    "fieldtype": "Data",
-   "label": "usr"
+   "in_list_view": 1,
+   "label": "usr",
+   "reqd": 1
   },
   {
    "fieldname": "pwd",
    "fieldtype": "Password",
-   "label": "pwd"
+   "in_list_view": 1,
+   "label": "pwd",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_stuh",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable",
+   "fieldtype": "Check",
+   "is_virtual": 1,
+   "label": "Enable",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_qamm",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "projects_name",
+   "fieldtype": "Code",
+   "label": "Projects Name",
+   "options": "{}",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-05 19:23:43.312954",
+ "modified": "2024-06-03 13:20:04.324416",
  "modified_by": "Administrator",
  "module": "Phamos Supplier Addon",
- "name": "Timesheet Fetching Tool",
+ "name": "Remote Server Connector",
  "owner": "Administrator",
  "permissions": [
   {
