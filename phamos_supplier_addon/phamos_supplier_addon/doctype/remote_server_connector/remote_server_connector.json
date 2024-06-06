@@ -8,7 +8,6 @@
  "engine": "InnoDB",
  "field_order": [
   "url",
-  "enable",
   "column_break_pocej",
   "usr",
   "column_break_stuh",
@@ -47,14 +46,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "0",
-   "fieldname": "enable",
-   "fieldtype": "Check",
-   "is_virtual": 1,
-   "label": "Enable",
-   "read_only": 1
-  },
-  {
    "fieldname": "section_break_qamm",
    "fieldtype": "Section Break"
   },
@@ -69,7 +60,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-06-03 13:20:04.324416",
+ "modified": "2024-06-04 16:49:37.968618",
  "modified_by": "Administrator",
  "module": "Phamos Supplier Addon",
  "name": "Remote Server Connector",
