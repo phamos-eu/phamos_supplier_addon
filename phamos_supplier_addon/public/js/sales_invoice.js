@@ -1,7 +1,7 @@
 
 frappe.ui.form.on('Sales Invoice', {
     refresh: function(frm){
-		if (frm.doc.status === 0) {
+		if (frm.doc.docstatus == 0) {
 			frm.add_custom_button(
 				__('Fetch and process work summary'), 
 				function () {
@@ -76,6 +76,7 @@ frappe.ui.form.on('Sales Invoice', {
 						callback: function (r) {
 							let service_item = values.service_item;
 							let income_account = values.income_account;
+							let total_billed_hours = 0;
 							if (r.message.work_summary.length > 0) {
 								let work_summary = r.message.work_summary;
 								frm.clear_table("items");
@@ -90,10 +91,13 @@ frappe.ui.form.on('Sales Invoice', {
 									item_row.rate = row.project_bill;
 									item_row.custom_billable_hours = row.hours;
 									item_row.qty = 1;
-									item_row.amount = row.hours;
+									item_row.amount = row.project_bill;
 									item_row.uom = "Hour";
+
+									total_billed_hours += row.hours;
 								});
-								frm.refresh_field("items");
+								frm.set_value("custom_total_billed_hours", total_billed_hours);
+								frm.refresh_fields();
 							} else {
 								frappe.throw(__("No Data Found!"))
 							}
