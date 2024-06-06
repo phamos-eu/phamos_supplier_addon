@@ -48,7 +48,7 @@ class RemoteServerConnector(Document):
 			'page_length': '1000',
 			'view': 'Report',
 			'with_comment_count': 'false',
-			'aggregate_on_field': 'total_billable_hours',
+			'aggregate_on_field': 'total_hours',
 			'aggregate_on_doctype': 'Timesheet',
 			'aggregate_function': 'sum',
 			'group_by': '`tabTimesheet`.`project`'
